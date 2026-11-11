@@ -164,8 +164,16 @@ S_FOTO_TXT = [[texto(txt, font(FONT_BLACK, tam), CORES[cor], glow=(0, 0, 0), glo
 S_DE = texto('DE', font(FONT_BOLD, 64), CINZA, tracking=4)
 S_PRECO_VELHO = texto('R$' + brl(C.PRECO_DE), font(FONT_BLACK, 130), CINZA)
 S_POR = texto('POR APENAS', font(FONT_BOLD, 64), BRANCO, tracking=4)
-F_PRECO = font(FONT_BLACK, 220)
-F_RS = font(FONT_BLACK, 100)
+# preço grande: 220 px, reduzido se o maior valor do contador (R$ + número) não couber em 940 px
+_tam = 220
+while _tam > 120:
+    _fp, _fr = font(FONT_BLACK, _tam), font(FONT_BLACK, int(_tam * 100 / 220))
+    _larg = max(_fp.getlength(brl(v)) for v in (C.PRECO_DE, C.PRECO_POR)) + _fr.getlength('R$') + 16
+    if _larg <= 940:
+        break
+    _tam -= 6
+F_PRECO = font(FONT_BLACK, _tam)
+F_RS = font(FONT_BLACK, int(_tam * 100 / 220))
 S_RS = texto('R$', F_RS, AMBAR, glow=LARANJA, glow_r=26)
 S_PRECO_FINAL = texto(brl(C.PRECO_POR), F_PRECO, AMBAR, glow=LARANJA, glow_r=36, tracking=-4)
 
