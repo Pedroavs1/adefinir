@@ -5,10 +5,13 @@ import math
 import subprocess
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+import os
+import glob
+import importlib
 from timeline import *
 
-FOTOS = sys.argv[3:6] if len(sys.argv) > 5 else [
-    'fotos/foto1.jpg', 'fotos/foto2.jpg', 'fotos/foto3.jpg']
+# qual reels renderizar: REELS=elo_gold python3 video.py ...
+C = importlib.import_module('reels.' + os.environ.get('REELS', 'ventiladores'))
 FONT_BLACK = '/usr/share/fonts/opentype/inter/InterDisplay-Black.otf'
 FONT_BOLD = '/usr/share/fonts/opentype/inter/InterDisplay-Bold.otf'
 FONT_MED = '/usr/share/fonts/opentype/inter/InterDisplay-Medium.otf'
@@ -126,7 +129,21 @@ def brl(v):
 
 
 # ---------- recursos pré-renderizados ----------
-fotos = [Image.open(p).convert('RGB') for p in FOTOS]
+_fontes = {}
+
+
+def fonte(src, t=0.0, ini=0.0):
+    """Foto, ou quadro de uma pasta de quadros extraídos de vídeo (30 fps)."""
+    if os.path.isdir(src):
+        qs = _fontes.setdefault(src, sorted(glob.glob(os.path.join(src, '*.jpg'))))
+        i = min(len(qs) - 1, max(0, int((ini + t) * 30)))
+        return Image.open(qs[i]).convert('RGB')
+    if src not in _fontes:
+        _fontes[src] = Image.open(src).convert('RGB')
+    return _fontes[src]
+
+
+CORES = {'branco': (255, 255, 255), 'ambar': (255, 176, 32)}
 VINHETA = vinheta()
 SOMBRA_BAIXO = gradiente_vertical(0, 0.94, 600, 1250)
 SOMBRA_TOPO = gradiente_vertical(0.65, 0, 0, 420)
@@ -136,26 +153,23 @@ BRILHO_FINAL = brilho_radial(AMBAR, 1000, W / 2, 900, 0.5)
 S_ESQUENTA = texto('ESQUENTA', font(FONT_BLACK, 150), BRANCO, glow=(255, 120, 40), glow_r=22, tracking=4)
 S_ESQUENTA_OFF = texto('ESQUENTA', font(FONT_BLACK, 150), (45, 45, 45), tracking=4)
 S_BLACK = texto('BLACK', font(FONT_BLACK, 300), AMBAR, glow=LARANJA, glow_r=40, tracking=-4)
-S_EMBULED = texto('E M B U L E D', font(FONT_BOLD, 56), BRANCO, tracking=6)
+S_EMBULED = texto(' '.join(C.MARCA), font(FONT_BOLD, 56), BRANCO, tracking=6)
 
-S_TAG = texto('ESQUENTA BLACK  •  EMBULED', font(FONT_BOLD, 40), BRANCO, tracking=3)
+S_TAG = texto(f'ESQUENTA BLACK  •  {C.MARCA}', font(FONT_BOLD, 40), BRANCO, tracking=3)
 TAG_BG = None
 
-S_FOTO_TXT = [
-    texto('VENTILADORES', font(FONT_BLACK, 130), BRANCO, glow=(0, 0, 0), glow_r=24),
-    texto('DE TETO', font(FONT_BLACK, 130), AMBAR, glow=(0, 0, 0), glow_r=24),
-    texto('PREÇO DE BLACK', font(FONT_BLACK, 118), BRANCO, glow=(0, 0, 0), glow_r=24),
-]
+S_FOTO_TXT = [[texto(txt, font(FONT_BLACK, tam), CORES[cor], glow=(0, 0, 0), glow_r=24, tracking=2 if tam >= 160 else 0)
+               for txt, cor, tam in cena['linhas']] for cena in C.CENAS]
 
 S_DE = texto('DE', font(FONT_BOLD, 64), CINZA, tracking=4)
-S_PRECO_VELHO = texto('R$1.068,01', font(FONT_BLACK, 130), CINZA)
+S_PRECO_VELHO = texto('R$' + brl(C.PRECO_DE), font(FONT_BLACK, 130), CINZA)
 S_POR = texto('POR APENAS', font(FONT_BOLD, 64), BRANCO, tracking=4)
 F_PRECO = font(FONT_BLACK, 220)
 F_RS = font(FONT_BLACK, 100)
 S_RS = texto('R$', F_RS, AMBAR, glow=LARANJA, glow_r=26)
-S_PRECO_FINAL = texto('249,90', F_PRECO, AMBAR, glow=LARANJA, glow_r=36, tracking=-4)
+S_PRECO_FINAL = texto(brl(C.PRECO_POR), F_PRECO, AMBAR, glow=LARANJA, glow_r=36, tracking=-4)
 
-pct = int((1068.01 - 249.90) / 1068.01 * 100)  # 76
+pct = int((C.PRECO_DE - C.PRECO_POR) / C.PRECO_DE * 100)  # arredonda pra baixo
 
 
 def selo():
@@ -178,8 +192,8 @@ def selo():
 S_SELO = selo()
 S_FINAL_1 = texto('ESQUENTA', font(FONT_BLACK, 150), BRANCO, glow=(255, 120, 40), glow_r=22, tracking=4)
 S_FINAL_2 = texto('BLACK', font(FONT_BLACK, 300), AMBAR, glow=LARANJA, glow_r=40, tracking=-4)
-S_FINAL_3 = texto('E M B U L E D', font(FONT_BOLD, 56), BRANCO, tracking=6)
-S_FINAL_PRECO = texto('R$249,90', font(FONT_BLACK, 120), (20, 20, 20))
+S_FINAL_3 = texto(' '.join(C.MARCA), font(FONT_BOLD, 56), BRANCO, tracking=6)
+S_FINAL_PRECO = texto('R$' + brl(C.PRECO_POR), font(FONT_BLACK, 120), (20, 20, 20))
 
 
 def pilula(spr, cor, padx=60, pady=24):
@@ -224,10 +238,11 @@ def cena_foto(t, idx, t_ini, t_fim):
     lt = t - t_ini
     dur = t_fim - t_ini
     punch = 1.0 + 0.22 * (1 - ease_out(lt / 0.35))
-    zoom = 1.04 + 0.08 * lt / dur
-    dx = [-40, 40, 0][idx] * lt / dur
-    dy = [0, -30, 30][idx] * lt / dur
-    img = cobrir(fotos[idx], zoom * punch, dx, dy)
+    cena = C.CENAS[idx]
+    zoom = cena['zoom'] + 0.08 * lt / dur
+    dx = cena.get('dx0', 0) + cena['dx'] * lt / dur
+    dy = cena.get('dy0', 0) + cena['dy'] * lt / dur
+    img = cobrir(fonte(cena['src'], lt, cena.get('ini', 0)), zoom * punch, dx, dy)
     if lt < 0.12:
         img = img.filter(ImageFilter.BoxBlur(int(14 * (1 - lt / 0.12)) + 1))
     f = img.convert('RGBA')
@@ -238,29 +253,19 @@ def cena_foto(t, idx, t_ini, t_fim):
     # texto grande entrando com "slam"
     k = ease_back((lt - 0.12) / 0.3)
     a = clamp01((lt - 0.12) / 0.12)
-    if idx == 0:
-        colar(f, S_FOTO_TXT[0], W / 2, 1380, 1.4 - 0.4 * k, a)
-        k2 = ease_back((lt - 0.4) / 0.3)
-        colar(f, S_FOTO_TXT[1], W / 2, 1510, 1.4 - 0.4 * k2, clamp01((lt - 0.4) / 0.12))
-    elif idx == 1:
-        colar(f, texto_cache('EMBULED'), W / 2, 1440, 1.4 - 0.4 * k, a)
-    else:
-        colar(f, S_FOTO_TXT[2], W / 2, 1440, 1.4 - 0.4 * k, a)
+    linhas = S_FOTO_TXT[idx]
+    ys = [1440] if len(linhas) == 1 else [1380, 1510]
+    for j, (spr, y) in enumerate(zip(linhas, ys)):
+        atraso = 0.12 + 0.28 * j
+        kj = ease_back((lt - atraso) / 0.3)
+        colar(f, spr, W / 2, y, 1.4 - 0.4 * kj, clamp01((lt - atraso) / 0.12))
     return f
-
-
-_cache = {}
-
-
-def texto_cache(s):
-    if s not in _cache:
-        _cache[s] = texto(s, font(FONT_BLACK, 170), AMBAR, glow=(0, 0, 0), glow_r=24, tracking=2)
-    return _cache[s]
 
 
 def cena_preco(t):
     lt = t - T_PRECO
-    img = cobrir(fotos[0], 1.12 + 0.05 * lt / 6, 0, 300)
+    fp = C.FUNDO_PRECO
+    img = cobrir(fonte(fp['src'], lt, fp.get('ini', 0)), fp['zoom'] + 0.05 * lt / 6, fp['dx'], fp['dy'])
     if lt < 0.12:
         img = img.filter(ImageFilter.BoxBlur(int(14 * (1 - lt / 0.12)) + 1))
     f = img.convert('RGBA')
@@ -287,7 +292,7 @@ def cena_preco(t):
         colar(f, S_POR, W / 2, 1270 + 30 * (1 - kp), 1.0, kp)
         if t < T_POR:
             p = (t - T_CONT0) / (T_POR - T_CONT0)
-            v = 1068.01 - (1068.01 - 249.90) * (1 - (1 - p) ** 2.2)
+            v = C.PRECO_DE - (C.PRECO_DE - C.PRECO_POR) * (1 - (1 - p) ** 2.2)
             num = texto(brl(v), F_PRECO, BRANCO, tracking=-4)
             rs = texto('R$', F_RS, BRANCO)
             esc = 1.0
@@ -315,7 +320,8 @@ def cena_preco(t):
 def cena_final(t):
     lt = t - T_FINAL
     f = Image.new('RGBA', (W, H), (0, 0, 0, 255))
-    bg = cobrir(fotos[0], 1.3 + 0.04 * lt, 0, 0).convert('RGBA')
+    ff = C.FUNDO_FINAL
+    bg = cobrir(fonte(ff['src'], lt, ff.get('ini', 0)), ff['zoom'] + 0.04 * lt, ff['dx'], ff['dy']).convert('RGBA')
     f = Image.blend(f, bg, 0.22)
     f.alpha_composite(BRILHO_FINAL)
     f.alpha_composite(VINHETA)
