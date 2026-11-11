@@ -1,5 +1,5 @@
 # Fundo da cena de preço: produtos em cards lado a lado na metade de cima (1080x1920).
-# Uso: python3 montar_cards.py tocatoca | gadofofo | potatochips | sine | sway | globo | acrilux
+# Uso: python3 montar_cards.py tocatoca | gadofofo | potatochips | sine | sway | globo | acrilux | torso
 import sys
 from PIL import Image, ImageDraw
 
@@ -31,6 +31,9 @@ FUNDOS = {
     ]),
     'acrilux': ('fotos/acrilux/card.jpg', (1000, 600, 0, 330), [
         ('fotos/acrilux/foto.jpg', 830, 1160, 760),
+    ]),
+    'torso': ('fotos/torso/card.jpg', (1000, 620, 0, 320), [
+        ('fotos/torso/foto1.jpg', 760, 1210, 870),
     ]),
 }
 
