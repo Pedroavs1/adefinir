@@ -1,0 +1,36 @@
+# Fundo da cena de preço: produtos em cards lado a lado na metade de cima (1080x1920).
+# Uso: python3 montar_cards.py tocatoca | gadofofo
+import sys
+from PIL import Image, ImageDraw
+
+W, H = 1080, 1920
+# por fundo: saída, (largura, altura, espaço, y do topo) dos cards, e recortes
+# (arquivo, centro x, centro y, altura do recorte) em pixels da foto original 1450x2576
+FUNDOS = {
+    'tocatoca': ('fotos/tocatoca/trio.jpg', (306, 540, 20, 350), [
+        ('fotos/tocatoca/queijo.jpg', 390, 1560, 1350),
+        ('fotos/tocatoca/capivara.jpg', 450, 1790, 1400),
+        ('fotos/tocatoca/ursinho.jpg', 440, 1590, 1650),
+    ]),
+    'gadofofo': ('fotos/gadofofo/duo.jpg', (420, 600, 24, 340), [
+        ('fotos/gadofofo/aceso.jpg', 520, 1450, 1400),
+        ('fotos/gadofofo/apagado.jpg', 390, 1500, 1500),
+    ]),
+}
+
+saida, (TW, TH, GAP, Y0), recortes = FUNDOS[sys.argv[1]]
+fundo = Image.new('RGB', (W, H), (8, 8, 8))
+n = len(recortes)
+x = (W - n * TW - (n - 1) * GAP) // 2
+for arq, cx, cy, ch in recortes:
+    img = Image.open(arq).convert('RGB')
+    cw = ch * TW / TH
+    box = (cx - cw / 2, cy - ch / 2, cx + cw / 2, cy + ch / 2)
+    box = (max(0, box[0]), max(0, box[1]), min(img.width, box[2]), min(img.height, box[3]))
+    tile = img.resize((TW, TH), Image.LANCZOS, box=box)
+    mask = Image.new('L', (TW, TH), 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, TW - 1, TH - 1), radius=28, fill=255)
+    fundo.paste(tile, (x, Y0), mask)
+    x += TW + GAP
+fundo.save(saida, quality=92)
+print('ok', saida)

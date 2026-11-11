@@ -1,5 +1,5 @@
 # Reels 3: abajur Tocatoca (queijo, capivara e ursinho), de R$149,75 por R$98,00
-# Antes de renderizar: python3 montar_trio.py  (gera o fundo da cena de preço)
+# Antes de renderizar: python3 montar_cards.py tocatoca  (gera o fundo da cena de preço)
 MARCA = 'EMBULED'
 PRECO_DE = 149.75
 PRECO_POR = 98.00
