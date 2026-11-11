@@ -193,8 +193,8 @@ def pilula(spr, cor, padx=60, pady=24):
 P_FINAL_PRECO = pilula(S_FINAL_PRECO, AMBAR)
 P_TAG = pilula(S_TAG, (0, 0, 0, 170), 40, 10)
 
-# janelas do LED piscando (iguais ao som)
-LED_ON = [(0.05, 0.11), (0.19, 0.23), (0.35, 0.47), (0.55, 0.58), (0.67, 99)]
+# janelas do neon piscando (medidas no efeito neon.mp3, que entra em 0,1 s)
+LED_ON = [(0.10, 0.31), (0.36, 0.41), (0.46, 0.57), (0.62, 0.67), (0.82, 0.93), (0.96, 99)]
 
 
 def led_on(t):
