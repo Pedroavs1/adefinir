@@ -152,10 +152,21 @@ BRILHO_FINAL = brilho_radial(AMBAR, 1000, W / 2, 900, 0.5)
 
 S_ESQUENTA = texto('ESQUENTA', font(FONT_BLACK, 150), BRANCO, glow=(255, 120, 40), glow_r=22, tracking=4)
 S_ESQUENTA_OFF = texto('ESQUENTA', font(FONT_BLACK, 150), (45, 45, 45), tracking=4)
-S_BLACK = texto('BLACK', font(FONT_BLACK, 300), AMBAR, glow=LARANJA, glow_r=40, tracking=-4)
+CAMPANHA = 'LED FRIDAY'  # nome da campanha depois do "ESQUENTA"
+
+
+def fonte_que_cabe(txt, tam, larg_max, path=FONT_BLACK):
+    while tam > 60 and font(path, tam).getlength(txt) > larg_max:
+        tam -= 4
+    return font(path, tam)
+
+
+F_CAMPANHA = fonte_que_cabe(CAMPANHA, 300, 960)
+S_BLACK = texto(CAMPANHA, F_CAMPANHA, AMBAR, glow=LARANJA, glow_r=40, tracking=-4)
 S_EMBULED = texto(' '.join(C.MARCA), font(FONT_BOLD, 56), BRANCO, tracking=6)
 
-S_TAG = texto(f'ESQUENTA BLACK  •  {C.MARCA}', font(FONT_BOLD, 40), BRANCO, tracking=3)
+_tag = f'ESQUENTA {CAMPANHA}  •  {C.MARCA}'
+S_TAG = texto(_tag, fonte_que_cabe(_tag, 40, 880, FONT_BOLD), BRANCO, tracking=3)
 TAG_BG = None
 
 S_FOTO_TXT = [[texto(txt, font(FONT_BLACK, tam), CORES[cor], glow=(0, 0, 0), glow_r=24, tracking=2 if tam >= 160 else 0)
@@ -199,7 +210,7 @@ def selo():
 
 S_SELO = selo()
 S_FINAL_1 = texto('ESQUENTA', font(FONT_BLACK, 150), BRANCO, glow=(255, 120, 40), glow_r=22, tracking=4)
-S_FINAL_2 = texto('BLACK', font(FONT_BLACK, 300), AMBAR, glow=LARANJA, glow_r=40, tracking=-4)
+S_FINAL_2 = texto(CAMPANHA, F_CAMPANHA, AMBAR, glow=LARANJA, glow_r=40, tracking=-4)
 S_FINAL_3 = texto(' '.join(C.MARCA), font(FONT_BOLD, 56), BRANCO, tracking=6)
 S_FINAL_PRECO = texto('R$' + brl(C.PRECO_POR), font(FONT_BLACK, 120), (20, 20, 20))
 

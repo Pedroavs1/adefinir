@@ -1,9 +1,9 @@
 # Reels 7: pendente Infini Sway (preto ou gold), de R$787,25 por R$499,00
 # Antes de renderizar: python3 montar_cards.py sway  (gera o fundo da cena de preço)
-MARCA = 'EMBULED'
+MARCA = 'CASA DO LED'
 PRECO_DE = 787.25
 PRECO_POR = 499.00
-SAIDA = 'reels-esquenta-black-sway.mp4'
+SAIDA = 'reels-esquenta-led-friday-sway.mp4'
 
 P = 'fotos/sway/'
 CENAS = [

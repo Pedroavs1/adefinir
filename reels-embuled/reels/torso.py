@@ -3,20 +3,20 @@
 # Antes de renderizar:
 #   ./preparar_clip.sh fotos/torso/video.mov build/clip-torso
 #   python3 montar_cards.py torso
-MARCA = 'EMBULED'
+MARCA = 'CASA DO LED'
 PRECO_DE = 1953.12
 PRECO_POR = 1367.20
-SAIDA = 'reels-esquenta-black-acrilux-torso.mp4'
+SAIDA = 'reels-esquenta-led-friday-acrilux-torso.mp4'
 
 P = 'fotos/torso/'
 CENAS = [
     {'src': 'build/clip-torso', 'ini': 0.0, 'zoom': 1.3, 'dx': 0, 'dy': 0, 'dy0': 288,
      'linhas': [('PENDENTE ACRILUX', 'branco', 96), ('TORSO GOLD', 'ambar', 150)]},
     {'src': P + 'foto2.jpg', 'zoom': 1.15, 'dx': 30, 'dy': 0, 'dy0': 144,
-     'linhas': [('EMBULED', 'ambar', 170)]},
+     'linhas': [('CASA DO LED', 'ambar', 150)]},
     # close na volta maior do acrílico
     {'src': P + 'foto1.jpg', 'zoom': 1.6, 'dx': -40, 'dy': 0, 'dx0': 612, 'dy0': 274,
-     'linhas': [('PREÇO DE BLACK', 'branco', 118)]},
+     'linhas': [('PREÇO DE', 'branco', 140), ('LED FRIDAY', 'ambar', 150)]},
 ]
 FUNDO_PRECO = {'src': P + 'card.jpg', 'zoom': 1.0, 'dx': 0, 'dy': 0}
 FUNDO_FINAL = {'src': P + 'card.jpg', 'zoom': 1.0, 'dx': 0, 'dy': 0}
