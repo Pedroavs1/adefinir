@@ -1,5 +1,5 @@
 # Fundo da cena de preço: produtos em cards lado a lado na metade de cima (1080x1920).
-# Uso: python3 montar_cards.py tocatoca | gadofofo | potatochips | sine | sway
+# Uso: python3 montar_cards.py tocatoca | gadofofo | potatochips | sine | sway | globo
 import sys
 from PIL import Image, ImageDraw
 
@@ -25,6 +25,9 @@ FUNDOS = {
     'sway': ('fotos/sway/card.jpg', (500, 600, 20, 330), [
         ('fotos/sway/preto.jpg', 830, 1150, 900),
         ('fotos/sway/gold.jpg', 800, 1000, 820),
+    ]),
+    'globo': ('fotos/globo/card.jpg', (620, 640, 0, 320), [
+        ('fotos/globo/close.jpg', 750, 1010, 1080),
     ]),
 }
 
