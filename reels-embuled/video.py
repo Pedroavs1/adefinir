@@ -313,7 +313,8 @@ def cena_preco(t):
 
     if t >= T_SELO:
         p = (t - T_SELO) / 0.3
-        colar(f, S_SELO, 810, 720, ease_back(p, 2.2) * 0.95, clamp01(p * 3), rot=14 + 4 * math.sin((t - T_SELO) * 3))
+        sx, sy = getattr(C, 'SELO', (810, 720))
+        colar(f, S_SELO, sx, sy, ease_back(p, 2.2) * 0.95, clamp01(p * 3), rot=14 + 4 * math.sin((t - T_SELO) * 3))
     return f
 
 
