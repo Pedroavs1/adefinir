@@ -153,6 +153,8 @@ BRILHO_FINAL = brilho_radial(AMBAR, 1000, W / 2, 900, 0.5)
 S_ESQUENTA = texto('ESQUENTA', font(FONT_BLACK, 150), BRANCO, glow=(255, 120, 40), glow_r=22, tracking=4)
 S_ESQUENTA_OFF = texto('ESQUENTA', font(FONT_BLACK, 150), (45, 45, 45), tracking=4)
 CAMPANHA = 'LED FRIDAY'  # nome da campanha depois do "ESQUENTA"
+DATA_CURTA = '13 E 14/11'
+DATA_LONGA = '13 E 14 DE NOVEMBRO'
 
 
 def fonte_que_cabe(txt, tam, larg_max, path=FONT_BLACK):
@@ -165,8 +167,15 @@ F_CAMPANHA = fonte_que_cabe(CAMPANHA, 300, 960)
 S_BLACK = texto(CAMPANHA, F_CAMPANHA, AMBAR, glow=LARANJA, glow_r=40, tracking=-4)
 S_EMBULED = texto(' '.join(C.MARCA), font(FONT_BOLD, 56), BRANCO, tracking=6)
 
-_tag = f'ESQUENTA {CAMPANHA}  •  {C.MARCA}'
-S_TAG = texto(_tag, fonte_que_cabe(_tag, 40, 880, FONT_BOLD), BRANCO, tracking=3)
+# tarja do topo: campanha em branco + data em âmbar
+_t1, _t2 = f'ESQUENTA {CAMPANHA}  •  ', DATA_CURTA
+_ft = fonte_que_cabe(_t1 + _t2, 42, 880, FONT_BOLD)
+_s1, _s2 = texto(_t1, _ft, BRANCO, tracking=3), texto(_t2, _ft, AMBAR, tracking=3)
+S_TAG = Image.new('RGBA', (_s1.width + _s2.width - 20, max(_s1.height, _s2.height)), (0, 0, 0, 0))
+S_TAG.alpha_composite(_s1, (0, 0))
+S_TAG.alpha_composite(_s2, (_s1.width - 20, 0))
+S_DATA_INTRO = texto(DATA_LONGA, font(FONT_BLACK, 70), AMBAR, glow=LARANJA, glow_r=18, tracking=2)
+S_DATA_FINAL = texto('SÓ DIAS ' + DATA_LONGA, fonte_que_cabe('SÓ DIAS ' + DATA_LONGA, 64, 940), BRANCO, glow=(0, 0, 0), glow_r=16, tracking=2)
 TAG_BG = None
 
 S_FOTO_TXT = [[texto(txt, font(FONT_BLACK, tam), CORES[cor], glow=(0, 0, 0), glow_r=24, tracking=2 if tam >= 160 else 0)
@@ -250,6 +259,9 @@ def cena_intro(t):
     if t >= T_BLACK + 0.45:
         k = ease_out((t - T_BLACK - 0.45) / 0.4)
         colar(f, S_EMBULED, W / 2, 1200 + 30 * (1 - k), 1.0, k)
+    if t >= T_BLACK + 0.6:
+        k = ease_back((t - T_BLACK - 0.6) / 0.3)
+        colar(f, S_DATA_INTRO, W / 2, 1330, max(0.01, k), clamp01((t - T_BLACK - 0.6) / 0.1))
     return f
 
 
@@ -349,10 +361,12 @@ def cena_final(t):
     colar(f, S_FINAL_1, W / 2, 640, 1.3 - 0.3 * k, clamp01(lt / 0.1))
     k2 = ease_back((lt - 0.08) / 0.3)
     colar(f, S_FINAL_2, W / 2, 860, 1.5 - 0.5 * k2, clamp01((lt - 0.08) / 0.1))
-    k3 = ease_out((lt - 0.3) / 0.35)
+    k3 = ease_out((lt - 0.18) / 0.3)
     colar(f, S_FINAL_3, W / 2, 1080 + 30 * (1 - k3), 1.0, k3)
-    k4 = ease_back((lt - 0.45) / 0.35)
-    colar(f, P_FINAL_PRECO, W / 2, 1290, max(0.01, k4), clamp01((lt - 0.45) / 0.1))
+    k4 = ease_back((lt - 0.25) / 0.3)
+    colar(f, P_FINAL_PRECO, W / 2, 1290, max(0.01, k4), clamp01((lt - 0.25) / 0.1))
+    k5 = ease_out((lt - 0.32) / 0.25)
+    colar(f, S_DATA_FINAL, W / 2, 1440 + 30 * (1 - k5), 1.0, k5)
     return f
 
 
